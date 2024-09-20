@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Gibbs Sampling for Archaeological Dates</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Gibbs Sampling for Archaeological
+Dates</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(eratosthenes)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">require</span>(Rcpp)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Loading required package: Rcpp</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;Rcpp&#39; was built under R version 4.4.1</span></span></code></pre></div>
+<p>A central function of the <code>eratosthenes</code> package is the
+<code>gibbs_ad()</code> function, which takes in information about
+relative sequences and absolute dating constraints, and then samples
+marginal probability densities for events from the full, joint
+conditional density, using a Gibbs sampler. This vignette provides
+details on the use of this function.</p>
+<p>The function operates on a continuous timeline. Any calendrical scale
+is possible, but here it is conventional for CE/AD dates to be positive
+and BCE/BCE dates to be negative.</p>
+<p>The Gibbs sampler is a common Markov Chain Monte Carlo (MCMC)
+technique, widely used in estimating posterior probabilities in Bayesian
+inference (a mainstay of calibrating and refining radiocarbon dates) as
+well as in computing marginal densities. For more information, see for
+example <span class="citation">Geman and Geman (1984)</span>, <span class="citation">Buck, Cavanagh, and Litton (1996)</span>, and <span class="citation">Lunn et al. (2013)</span>.</p>
+<div id="inputs" class="section level2">
+<h2>Inputs</h2>
+<p>The core inputs for the <code>gibbs_ad()</code> function are the
+following:</p>
+<ul>
+<li>relative sequence(s) of contexts</li>
+<li>finds (optional), associated with a context and type/class (also
+optional)</li>
+<li>absolute constraints (<em>termini post/ante quem</em>)</li>
+</ul>
+<div id="relative-sequences-of-contexts" class="section level3">
+<h3>Relative Sequences of Contexts</h3>
+<p>Relative sequences of contexts must be in the form of a
+<code>list</code>, with each object in the list being a vector whose
+ordering of elements is in agreement with all other elements. See the
+vignette <strong>Aligning Relative Sequences</strong> for more
+information.</p>
+<p>The following object <code>contexts</code> provides an example of a
+valid set of relative sequences:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;I&quot;</span>, <span class="st">&quot;J&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;G&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;K&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;K&quot;</span>, <span class="st">&quot;L&quot;</span>, <span class="st">&quot;M&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>contexts <span class="ot">&lt;-</span> <span class="fu">list</span>(x, y, z)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">seq_check</span>(contexts) <span class="co"># check if the sequences are in agreement</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="finds" class="section level3">
+<h3>Finds</h3>
+<p>Data on finds (i.e., any elements which pertain to a given context)
+are optional. Each find must be in the form of a <code>list</code> with
+the following structure:</p>
+<ul>
+<li><code>id</code>: An id number or string of the find, such as an
+inventory number or bibliographic reference.</li>
+<li><code>assoc</code>: The context to which the find belongs, which
+must be contained in the relative sequences of contexts.</li>
+<li><code>type</code>: An optional vector or element denoting any types,
+subtypes, classes, etc., to which the find pertains. If not present, a
+<code>NULL</code> value must be given.</li>
+</ul>
+<p>Each find must in turn be stored in a single <code>list</code>
+object:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>f1 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find01&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;D&quot;</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;type1&quot;</span>, <span class="st">&quot;form1&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>f2 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find02&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;E&quot;</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;type1&quot;</span>, <span class="st">&quot;form2&quot;</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>f3 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find03&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;G&quot;</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;type1&quot;</span>, <span class="st">&quot;form1&quot;</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>f4 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find04&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;H&quot;</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;type2&quot;</span>, <span class="st">&quot;form1&quot;</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>f5 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find05&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;I&quot;</span>, <span class="at">type =</span> <span class="st">&quot;type2&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>f6 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;find06&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;H&quot;</span>, <span class="at">type =</span> <span class="cn">NULL</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>artifacts <span class="ot">&lt;-</span> <span class="fu">list</span>(f1, f2, f3, f4, f5, f6)</span></code></pre></div>
+<p>Missing information on types should be supplied with a
+<code>NULL</code> value.</p>
+<p>Finds should have no absolute dating constrains on them. If they do,
+they should be specified as an absolute constraint.</p>
+</div>
+<div id="absolute-constraints" class="section level3">
+<h3>Absolute Constraints</h3>
+<p>Absolute constraints are predicated on whether they provide a
+<em>terminus post quem</em> (<em>t.p.q.</em>) for a context or a
+<em>terminus ante quem</em> (<em>t.a.q.</em>) for a context. The
+information on these absolute dates is regarded as external or extrinsic
+information. For example, a radiocarbon date provides for information on
+when the sample died, not when its context was formed; a coin type may
+be known to have had a range of production dates, but the production
+date of <em>that particular coin</em> may be affected by the
+stratigraphic context in which it is found. Such constraints may take a
+variety of forms.</p>
+<p>The formatting for a <em>t.p.q.</em> or a <em>t.a.q</em> is the same,
+as a <code>list</code> in which each constraint contains:</p>
+<ul>
+<li><code>id</code>: An id number or string of the find, such as an
+inventory number or bibliographic reference.</li>
+<li><code>assoc</code>: The context to which the find belongs, which
+must be contained in the relative sequences of contexts.</li>
+<li><code>type</code>: An optional vector or element denoting any types,
+subtypes, classes, etc., to which the find pertains. If not present, a
+<code>NULL</code> value must be given.</li>
+<li><code>samples</code>: A <code>numeric</code> vector or element
+containing potential dates of the <em>t.p.q.</em> or <em>t.a.q.</em>,
+i.e., a sample of the probability density function which expresses when
+that constraint occurred. Common densities would include:
+<ul>
+<li>A single <code>numeric</code> if the constraint is known precisely
+and certainly.</li>
+<li>Samples of <span class="math inline">\(n\)</span> size from a
+continuous uniform distribution, <code>runif(n, a, b)</code>, if known
+between two bounds <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>, without any more or less certainty
+about any one date.</li>
+<li>Samples of <span class="math inline">\(n\)</span> size from a
+bespoke probability density, such as a calibrated radiocarbon date.</li>
+</ul></li>
+</ul>
+<p>Constraints must be contained in two separate <code>list</code>
+objects, one for <em>t.p.q.</em> and the other for <em>t.a.q.</em>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># external</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>coin1 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;coin1&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;B&quot;</span>, <span class="at">type =</span> <span class="cn">NULL</span>, <span class="at">samples =</span> <span class="fu">runif</span>(<span class="dv">100</span>,<span class="sc">-</span><span class="dv">320</span>,<span class="sc">-</span><span class="dv">300</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>coin2 <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;coin2&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;G&quot;</span>, <span class="at">type =</span> <span class="cn">NULL</span>, <span class="at">samples =</span> <span class="fu">runif</span>(<span class="dv">100</span>,<span class="dv">37</span>,<span class="dv">41</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>destr <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">id =</span> <span class="st">&quot;destr&quot;</span>, <span class="at">assoc =</span> <span class="st">&quot;J&quot;</span>, <span class="at">type =</span> <span class="cn">NULL</span>, <span class="at">samples =</span> <span class="dv">79</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>tpq_info <span class="ot">&lt;-</span> <span class="fu">list</span>(coin1, coin2)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>taq_info <span class="ot">&lt;-</span> <span class="fu">list</span>(destr)</span></code></pre></div>
+</div>
+</div>
+<div id="additional-arguments" class="section level2">
+<h2>Additional Arguments</h2>
+<p>Additional arguments are necessary for the <code>gibbs_ad()</code>
+function:</p>
+<ul>
+<li><code>samples</code>: the number of Gibbs samples to take (i.e., the
+number of estimates of any one event). By default set at
+<code>10^5</code>.</li>
+<li><code>alpha</code>: the constraint on the earliest possible date to
+sample. By default set at <code>-5000</code>.</li>
+<li><code>omega</code>: the constraint on the latest possible date to
+sample. By default set at <code>1950</code>.</li>
+<li><code>trim</code>: takes a logical value as input, <code>trim</code>
+specifies whether to remove contexts from the result which lie earlier
+than the earliest given <em>t.p.q.</em> or later than the latest
+<em>t.a.q.</em>, i.e., contexts whose estimation depends on
+<code>alpha</code> and <code>omega</code>. By default set at
+<code>TRUE</code>.</li>
+<li><code>rule</code>: the rule for how to estimate production dates for
+artifact types, which is described in the following section. By default
+set at <code>&quot;naive&quot;</code>.</li>
+</ul>
+<div id="rules-for-estimating-production-dates" class="section level3">
+<h3>Rules for Estimating Production Dates</h3>
+<p>Since archaeologists are typically interested in dates of production
+and use as much as deposition, the <code>gibbs_ad()</code> function will
+return the marginal densities for both production and deposition (from
+which the estimation of a use date can then be derived).</p>
+<p>Estimating the date of the production of a find or find-type however
+necessitates some assumption, since in principle the absence of evidence
+is not viewed as evidence of absence. Without stipulating a rule, the
+earliest production date of any artifact could reach back endlessly into
+time, since an artifact does not need to have been produced after the
+initial occupation of a site where it has been found.</p>
+<p>Here, two basic rules have been included for determining production
+dates of finds:</p>
+<ul>
+<li><code>&quot;naive&quot;</code>: The earliest potential threshold of a
+find-type occurs sometime before the first deposition of that type, and
+after the deposition of the next earliest context. A production date is
+then chosen uniformly at random between that threshold and the
+depositional date of that artifact.</li>
+<li><code>&quot;earliest&quot;</code>: The earliest potential date of a find-type
+occurs sometime before the first deposition of that type, and after the
+deposition of the next earliest context. A production date is then
+chosen uniformly at random between those two dates.</li>
+</ul>
+<p>The <code>&quot;earliest&quot;</code> option will constrain the date of
+production to the earliest possible instances, while the
+<code>&quot;naive&quot;</code> option (the default) will select any date between
+an earliest threshold and the depositional date of the particular
+find.</p>
+<p>If no finds are included in the <code>gibbs_ad()</code> arguments,
+then only depositional dates for contexts, not production dates, are
+estimated.</p>
+</div>
+</div>
+<div id="functionality" class="section level2">
+<h2>Functionality</h2>
+<p>The <code>gibbs_ad()</code> function at its core uses a Gibbs
+sampler, drawing from the full joint conditional density in order to
+sample marginal densities for dates of deposition (of contexts and
+finds) and production (of finds).</p>
+<p>First, samples are drawn from any <em>t.p.q</em> and <em>t.a.q.</em>.
+Then, for convenience, the Gibbs sampler proceeds in order of a sequence
+of contexts based on the merged ranking of all contexts (via
+<code>synth_rank()</code>). The sampler will identify all contexts and
+constraints prior and subsequent to any one context, and then will
+identify the largest prior date and smallest subsequent date, in between
+which it will uniformly sample a date. One can adjust the number of
+samples drawn with the <code>samples</code> argument of the
+function:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">gibbs_ad</span>(contexts, <span class="at">finds =</span> artifacts, <span class="at">samples =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">4</span>, <span class="at">tpq =</span> tpq_info, <span class="at">taq =</span> taq_info)</span></code></pre></div>
+</div>
+<div id="output" class="section level2">
+<h2>Output</h2>
+<p>The output of the <code>gibbs_ad()</code> function will be a
+<code>list</code> of class <code>marginals</code> containing the
+marginal densities of the depositional dates of contexts and finds, if
+included; production dates are given for finds types, again, if
+included. Marginal densities are also given for each <em>t.p.q.</em> and
+each <em>t.a.q.</em>, which expresses the probability of their dating
+<em>given</em> the conditions of the relative sequences of contexts (not
+independent of them).</p>
+<ul>
+<li><code>$deposition</code> contains the depositional dates of contexts
+included in the sequences input</li>
+<li><code>$externals</code> contains the dates of the absolute
+constraints taking the full joint conditional density into account</li>
+<li><code>$production</code> contains the dates of production of
+artifact types</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">str</span>(dates)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; List of 3</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;  $ deposition:List of 9</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   ..$ B: num [1:10000] 19.3 -148.1 -186.4 -186.8 -290.5 ...</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   ..$ C: num [1:10000] 45.3 -147.5 -184.7 -170.4 -235.2 ...</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   ..$ D: num [1:10000] 46.7 -83.2 -168.7 -123.9 -130.5 ...</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   ..$ E: num [1:10000] 49.7 18.4 -40 -32.5 -98.9 ...</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   ..$ F: num [1:10000] 52.1 42.3 43.6 32.2 -36.2 ...</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   ..$ G: num [1:10000] 71.4 65.4 65.2 64.5 66 ...</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   ..$ H: num [1:10000] 76 66.2 65.5 69.3 66.4 ...</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   ..$ I: num [1:10000] 76.4 67.1 69.4 70.1 70.9 ...</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   ..$ J: num [1:10000] 76.8 74.8 73.3 71.6 71.8 ...</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  $ externals :List of 3</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   ..$ coin1: num [1:10000] -320 -306 -313 -303 -319 ...</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;   ..$ coin2: num [1:10000] 37 37 38.1 37.3 37.6 ...</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;   ..$ destr: num [1:10000] 79 79 79 79 79 79 79 79 79 79 ...</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  $ production:List of 4</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;   ..$ type1: num [1:30000] 45.4 46.2 51.9 -135.5 -50.3 ...</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;   ..$ form1: num [1:30000] 46.37 51.18 45.84 -144.97 7.93 ...</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;   ..$ form2: num [1:10000] 48.6 -79.5 -108 -51.1 -123.4 ...</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   ..$ type2: num [1:20000] 71.4 76 66 65.5 65.3 ...</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;marginals&quot; &quot;list&quot;</span></span></code></pre></div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-buck_bayesian_1996" class="csl-entry">
+Buck, C. E., W. G. Cavanagh, and C. D. Litton. 1996. <em>Bayesian
+<span>Approach</span> to <span>Interpreting</span>
+<span>Archaeological</span> <span>Data</span></em>. Chichester: John
+Wiley &amp; Sons.
+</div>
+<div id="ref-geman_stochastic_1984" class="csl-entry">
+Geman, S., and D. Geman. 1984. <span>“Stochastic
+<span>Relaxation</span>, <span>Gibbs</span> <span>Distributions</span>,
+and the <span>Bayesian</span> <span>Restoration</span> of
+<span>Images</span>.”</span> <em>IEEE Transactions on Pattern Analysis
+and Machine Intelligence</em> 6: 721–41.
+</div>
+<div id="ref-lunn_bugs_2013" class="csl-entry">
+Lunn, D., C. Jackson, N. Best, A. Thomas, and D. Spiegelhalter. 2013.
+<em>The <span>BUGS</span> <span>Book</span>: <span>A</span>
+<span>Practical</span> <span>Introduction</span> to
+<span>Bayesian</span> <span>Analysis</span></em>. Boca Raton, FL: CRC
+Press.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

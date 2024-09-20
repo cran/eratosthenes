@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Aligning Relative Sequences</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Aligning Relative Sequences</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(eratosthenes)</span></code></pre></div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This vignette outlines functions that check and align multiple
+relative sequences of events using <code>eratosthenes</code>. Not all
+sequences are however of the same informational value. Some sequences
+may be based on ideal or optimal theoretical assumptions, as with
+frequency or contextual seriation, and others they may be based on
+physical relationships, as with soil stratigraphy. It is clear that such
+theoretical sequences should yield to those based on physical
+relationships, but this raises the problem of how to coerce one or more
+theoretical sequences which may contain events that also have physical
+relationships. For example, one can produce an ideal seriation of
+contexts that includes discrete, single deposits on the one hand (say a
+number of separate pits with no overlap) and on the other stratified
+deposits. In such an optimal seriation, it is possible for those
+stratified deposits to be seriated “out of order” with respect to their
+stratified sequence (i.e., the stratigraphy may have been perturbed at
+one more moments so that their finds assemblages are not well
+stratified). Accordingly, it is desirable to take the optimal order
+achieved via seriation and constrain it back to agree with the soil
+stratigraphy.</p>
+</div>
+<div id="checking-sequence-agreement" class="section level2">
+<h2>Checking Sequence Agreement</h2>
+<p>To check whether two or more sequences of events agree with one
+another in their order, the <code>seq_check()</code> function is used.
+Sequences should run in the same direction from left to right (i.e., the
+earliest element of all sequences should be the first element), and be
+contained in a <code>list</code> object. The <code>seq_check()</code>
+function returns a logical output if all sequences have the same
+elements in the same order.</p>
+<p>Both sequences <code>x</code> and <code>y</code> contain the same
+events in the same order:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">list</span>(x, y)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">seq_check</span>(a)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>But sequence <code>z</code> contains events <code>&quot;F&quot;</code> and
+<code>&quot;C&quot;</code> out of order with respect to <code>x</code> and
+<code>y</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;C&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">list</span>(x, y, z)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">seq_check</span>(b)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+</div>
+<div id="merging-sequences" class="section level2">
+<h2>Merging Sequences</h2>
+<p>The <code>synth_rank()</code> function will use recursion in order to
+produce a single, “merged” or “synthesized” sequence from two or more
+sequences. This is accomplished by counting the total number of elements
+after running a recursive trace through all partial sequences (via the
+<code>quae_postea()</code> function, on which see below). If partial
+sequences are inconsistent in their rankings, a <code>NULL</code> value
+is returned.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">list</span>(x, y)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">synth_rank</span>(a)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;A&quot; &quot;B&quot; &quot;C&quot; &quot;D&quot; &quot;F&quot; &quot;H&quot; &quot;G&quot; &quot;E&quot;</span></span></code></pre></div>
+<p>Producing a single merged or synthesized sequence is a matter of
+procedural convenience for the <code>gibbs_ad()</code> function (see the
+vignette on <strong>Gibbs Sampling for Archaeological Dates</strong>).
+To be sure, events missing from one sequence or another could occur at
+different points in the merged sequence. In the example above,
+<code>&quot;H&quot;</code> could occur at any point after <code>&quot;D&quot;</code> and
+before <code>&quot;E&quot;</code>, but the <code>synth_rank()</code> function has
+situated it in between <code>&quot;F&quot;</code> and <code>&quot;G&quot;</code>.</p>
+<p>If sequences disagree, a <code>NULL</code> value is returned for the
+<code>synth_rank()</code> function.</p>
+</div>
+<div id="adjusting-sequences" class="section level2">
+<h2>Adjusting Sequences</h2>
+<p>As mentioned above, one may have sequences which are derived via
+theoretical considerations (e.g., frequency or contextual seriation),
+and some which are known (e.g., soil stratigraphy or historical
+documentation). The <code>seq_adj()</code> function will take an “input”
+sequence and adjust its ordering to fit with another “target” sequence
+of smaller size.</p>
+<p>For example, the input sequence might be an ordering obtained from a
+contextual seriation which is based on artifact types found in both tomb
+assemblages as well as stratified deposits, from one or more sites. And
+the target sequence might be a known stratigraphic sequence. One wants
+to maintain the ordering of the target sequence, adjusting the input
+into agreement:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># input</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>seriated <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;T1&quot;</span>, <span class="st">&quot;T2&quot;</span>, <span class="st">&quot;S3&quot;</span>, <span class="st">&quot;S4&quot;</span>, <span class="st">&quot;T4&quot;</span>, <span class="st">&quot;T5&quot;</span>, <span class="st">&quot;T6&quot;</span>, <span class="st">&quot;S5&quot;</span>, <span class="st">&quot;T7&quot;</span>, <span class="st">&quot;S2&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># target</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>stratigraphic <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S3&quot;</span>, <span class="st">&quot;S4&quot;</span>, <span class="st">&quot;S5&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co"># input adjusted to agree with the target</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">seq_adj</span>(seriated, stratigraphic)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;S1&quot; &quot;T1&quot; &quot;S2&quot; &quot;T2&quot; &quot;S3&quot; &quot;T7&quot; &quot;S4&quot; &quot;T4&quot; &quot;T5&quot; &quot;T6&quot; &quot;S5&quot;</span></span></code></pre></div>
+<p>To achieve this the <code>seq_adj()</code> function performs a linear
+interpolation between jointly attested events, placing the input
+sequence along the <span class="math inline">\(x\)</span> axis and the
+target sequence along the <span class="math inline">\(y\)</span> axis,
+coercing the order of all elements to the <span class="math inline">\(y\)</span> axis:</p>
+<p><img src="data:image/png;base64,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" width="100%" style="display: block; margin: auto;" /></p>
+<p>For multiple stratigraphic sequences, the <code>seq_adj()</code>
+function can be re-run, taking a new target sequence and using the
+previous result as the new input sequence. If both input and target
+sequences agree, the input sequence will be returned.</p>
+</div>
+<div id="all-earlier-events-all-later-events" class="section level2">
+<h2>All Earlier Events, All Later Events</h2>
+<p>A core need of the <code>gibbs_ad()</code> function is to determine,
+for each event, <em>all</em> events which come later and earlier than
+that event. The functions <code>quae_postea()</code> and
+<code>quae_antea()</code> achieve this need for later events and earlier
+events respectively. Hence, there is no need to determine only one,
+single sequence or ordering as an input. Instead, a <code>list</code>
+object which contains multiple (partial or incomplete) sequences. The
+output is a <code>list</code> indexed with each element, containing the
+vector of contexts which precede or follow that element.</p>
+<p>For <code>quae_antea()</code>, a dummy element of
+<code>&quot;alpha&quot;</code> is included in all vectors, and for
+<code>quae_postea()</code>, a dummy element of <code>&quot;omega&quot;</code> is
+included. The elements of <code>&quot;alpha&quot;</code> and <code>&quot;omega&quot;</code>
+are necesary as they constitute the fixed lower and upper limits in
+which estimates are made in <code>gibbs_ad()</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>, <span class="st">&quot;E&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">list</span>(x, y)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">quae_postea</span>(a)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; $A</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;B&quot;     &quot;C&quot;     &quot;D&quot;     &quot;H&quot;     &quot;E&quot;     &quot;F&quot;     &quot;G&quot;    </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; $B</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;C&quot;     &quot;D&quot;     &quot;H&quot;     &quot;E&quot;     &quot;F&quot;     &quot;G&quot;    </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; $C</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;D&quot;     &quot;H&quot;     &quot;E&quot;     &quot;F&quot;     &quot;G&quot;    </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; $D</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;H&quot;     &quot;E&quot;     &quot;F&quot;     &quot;G&quot;    </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; $H</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;E&quot;    </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; $E</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot;</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; $F</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;G&quot;     &quot;E&quot;    </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; $G</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; [1] &quot;omega&quot; &quot;E&quot;</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="fu">quae_antea</span>(a)</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; $A</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot;</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; $B</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;A&quot;    </span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; $C</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;A&quot;     &quot;B&quot;    </span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; $D</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;A&quot;     &quot;B&quot;     &quot;C&quot;    </span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; $H</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;A&quot;     &quot;B&quot;     &quot;C&quot;     &quot;D&quot;    </span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; $E</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;A&quot;     &quot;B&quot;     &quot;C&quot;     &quot;D&quot;     &quot;H&quot;     &quot;F&quot;     &quot;G&quot;    </span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; $F</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;B&quot;     &quot;D&quot;     &quot;A&quot;     &quot;C&quot;    </span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; $G</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; [1] &quot;alpha&quot; &quot;B&quot;     &quot;D&quot;     &quot;F&quot;     &quot;A&quot;     &quot;C&quot;</span></span></code></pre></div>
+<p>The function <code>seq_check()</code>, which checks to see if
+sequences contain any discrepant orderings, relies on
+<code>quae_postea()</code>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
