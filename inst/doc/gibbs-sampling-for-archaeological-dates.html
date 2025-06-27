@@ -366,7 +366,7 @@ Dates</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(eratosthenes)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">require</span>(Rcpp)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Loading required package: Rcpp</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;Rcpp&#39; was built under R version 4.4.1</span></span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;Rcpp&#39; was built under R version 4.4.3</span></span></code></pre></div>
 <p>A central function of the <code>eratosthenes</code> package is the
 <code>gibbs_ad()</code> function, which takes in information about
 relative sequences and absolute dating constraints, and then samples
@@ -389,7 +389,7 @@ following:</p>
 <li>relative sequence(s) of contexts</li>
 <li>finds (optional), associated with a context and type/class (also
 optional)</li>
-<li>absolute constraints (<em>termini post/ante quem</em>)</li>
+<li>absolute constraints (<em>termini post/ante quos</em>)</li>
 </ul>
 <div id="relative-sequences-of-contexts" class="section level3">
 <h3>Relative Sequences of Contexts</h3>
@@ -556,7 +556,14 @@ identify the largest prior date and smallest subsequent date, in between
 which it will uniformly sample a date. One can adjust the number of
 samples drawn with the <code>samples</code> argument of the
 function:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">gibbs_ad</span>(contexts, <span class="at">finds =</span> artifacts, <span class="at">samples =</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">4</span>, <span class="at">tpq =</span> tpq_info, <span class="at">taq =</span> taq_info)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">gibbs_ad</span>(contexts, <span class="at">finds =</span> artifacts, <span class="at">tpq =</span> tpq_info, <span class="at">taq =</span> taq_info)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Assigning initial random values (this may take a moment)...</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Beginning main Gibbs sampler. Will terminate either when MCSE criterion or maximum number of MC samples reached.</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;  Samples: 1000     Mean MCSE: 1.898 Samples: 2000     Mean MCSE: 1.157 Samples: 3000     Mean MCSE: 1.018 Samples: 4000     Mean MCSE: 0.908 Samples: 5000     Mean MCSE: 0.862 Samples: 6000     Mean MCSE: 0.826 Samples: 7000     Mean MCSE: 0.746 Samples: 8000     Mean MCSE: 0.696 Samples: 9000     Mean MCSE: 0.682 Samples: 10000     Mean MCSE: 0.619 Samples: 11000     Mean MCSE: 0.6 Samples: 12000     Mean MCSE: 0.617 Samples: 13000     Mean MCSE: 0.557 Samples: 14000     Mean MCSE: 0.539 Samples: 15000     Mean MCSE: 0.517 Samples: 16000     Mean MCSE: 0.543 Samples: 17000     Mean MCSE: 0.524 Samples: 18000     Mean MCSE: 0.466</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; MCSE criterion passed. Finishing.</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; Computing densities for find-type production...</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Finished.</span></span></code></pre></div>
 </div>
 <div id="output" class="section level2">
 <h2>Output</h2>
@@ -577,27 +584,32 @@ constraints taking the full joint conditional density into account</li>
 artifact types</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">str</span>(dates)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; List of 3</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; List of 4</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;  $ deposition:List of 9</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   ..$ B: num [1:10000] 19.3 -148.1 -186.4 -186.8 -290.5 ...</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   ..$ C: num [1:10000] 45.3 -147.5 -184.7 -170.4 -235.2 ...</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   ..$ D: num [1:10000] 46.7 -83.2 -168.7 -123.9 -130.5 ...</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   ..$ E: num [1:10000] 49.7 18.4 -40 -32.5 -98.9 ...</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   ..$ F: num [1:10000] 52.1 42.3 43.6 32.2 -36.2 ...</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   ..$ G: num [1:10000] 71.4 65.4 65.2 64.5 66 ...</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   ..$ H: num [1:10000] 76 66.2 65.5 69.3 66.4 ...</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   ..$ I: num [1:10000] 76.4 67.1 69.4 70.1 70.9 ...</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   ..$ J: num [1:10000] 76.8 74.8 73.3 71.6 71.8 ...</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  $ externals :List of 3</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   ..$ coin1: num [1:10000] -320 -306 -313 -303 -319 ...</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;   ..$ coin2: num [1:10000] 37 37 38.1 37.3 37.6 ...</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;   ..$ destr: num [1:10000] 79 79 79 79 79 79 79 79 79 79 ...</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  $ production:List of 4</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;   ..$ type1: num [1:30000] 45.4 46.2 51.9 -135.5 -50.3 ...</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;   ..$ form1: num [1:30000] 46.37 51.18 45.84 -144.97 7.93 ...</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;   ..$ form2: num [1:10000] 48.6 -79.5 -108 -51.1 -123.4 ...</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   ..$ type2: num [1:20000] 71.4 76 66 65.5 65.3 ...</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;marginals&quot; &quot;list&quot;</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   ..$ B: num [1:18000] -308 -291 -275 -307 -281 ...</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   ..$ C: num [1:18000] -280 -262 -249 -261 -271 ...</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   ..$ D: num [1:18000] -173 -95.5 -243.1 -245 -254.8 ...</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   ..$ E: num [1:18000] -5.89 -88.32 -147.42 -169.74 -119.66 ...</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   ..$ F: num [1:18000] 31.5 -49.8 15.4 -23.6 -11.6 ...</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   ..$ G: num [1:18000] 39.1 44.9 42.6 46.5 51 ...</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   ..$ H: num [1:18000] 47.5 55.9 50.9 55.7 51.1 ...</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   ..$ I: num [1:18000] 56.5 57.3 71.8 63.5 61.4 ...</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   ..$ J: num [1:18000] 63.8 72.2 76.6 69.1 70.7 ...</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;events&quot; &quot;list&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  $ externals :List of 3</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;   ..$ coin1: num [1:18000] -312 -312 -314 -318 -313 ...</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;   ..$ coin2: num [1:18000] 38.4 37.1 40.5 39.9 40.8 ...</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;   ..$ destr: num [1:18000] 79 79 79 79 79 79 79 79 79 79 ...</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;events&quot; &quot;list&quot;</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  $ production:List of 4</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;   ..$ type1: num [1:54000] -232 -246 -271 -230 -234 ...</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   ..$ form1: num [1:54000] -181.94 -237.68 -97.47 -139.43 -8.73 ...</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;   ..$ form2: num [1:18000] -92.7 -94.8 -200.8 -187.8 -251.9 ...</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt;   ..$ type2: num [1:36000] 45 53.6 47.4 50.1 50.8 ...</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;events&quot; &quot;list&quot;</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;  $ mcse      : Named num [1:16] 0.709 1.064 1.176 1.036 0.659 ...</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:16] &quot;B&quot; &quot;C&quot; &quot;D&quot; &quot;E&quot; ...</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;  - attr(*, &quot;class&quot;)= chr [1:2] &quot;marginals&quot; &quot;list&quot;</span></span></code></pre></div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>

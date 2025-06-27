@@ -35,7 +35,7 @@ tpq_info <- list(coin1, coin2)
 taq_info <- list(destr)
 
 ## -----------------------------------------------------------------------------
-dates <- gibbs_ad(contexts, finds = artifacts, samples = 10^4, tpq = tpq_info, taq = taq_info)
+dates <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 
 ## -----------------------------------------------------------------------------
 str(dates)
