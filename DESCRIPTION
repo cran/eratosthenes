@@ -1,6 +1,6 @@
 Package: eratosthenes
 Title: Archaeological Synchronism
-Version: 0.0.9
+Version: 1.0.2
 Authors@R: 
     person(c("Stephen", "A."), "Collins-Elliott", , "sce@utk.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5642-6903"))
@@ -11,12 +11,13 @@ RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 LinkingTo: Rcpp
-Suggests: knitr, rmarkdown
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2025-06-27 19:29:44 UTC; tennessee10
+Packaged: 2026-10-01 21:53:21 UTC; archaeologus
 Author: Stephen A. Collins-Elliott [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-5642-6903>)
 Maintainer: Stephen A. Collins-Elliott <sce@utk.edu>
 Repository: CRAN
-Date/Publication: 2025-06-27 19:40:02 UTC
+Date/Publication: 2026-10-01 22:40:02 UTC

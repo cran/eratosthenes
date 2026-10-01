@@ -3,11 +3,12 @@
 \name{sq_disp}
 \alias{sq_disp}
 \alias{sq_disp.marginals}
+\alias{sq_disp.type_marginals}
 \title{Squared Displacement for a Target Event}
 \usage{
 sq_disp(
   marginalized,
-  target,
+  target = NULL,
   sequences,
   finds = NULL,
   max_samples = 10^5,
@@ -17,12 +18,13 @@ sq_disp(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  rule = "naive",
+  quiet = FALSE
 )
 
 \method{sq_disp}{marginals}(
   marginalized,
-  target,
+  target = NULL,
   sequences,
   finds = NULL,
   max_samples = 10^5,
@@ -32,13 +34,30 @@ sq_disp(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  rule = NULL,
+  quiet = FALSE
+)
+
+\method{sq_disp}{type_marginals}(
+  marginalized,
+  target = NULL,
+  sequences,
+  finds = NULL,
+  max_samples = 10^5,
+  size = 10^3,
+  mcse_crit = 0.5,
+  tpq = NULL,
+  taq = NULL,
+  alpha_ = -5000,
+  omega_ = 1950,
+  rule = "naive",
+  quiet = FALSE
 )
 }
 \arguments{
-\item{marginalized}{The results of \code{\link[eratosthenes]{gibbs_ad}}.\code{\link[eratosthenes]{gibbs_ad}}.}
+\item{marginalized}{The results of \code{\link[eratosthenes]{gibbs_ad}} or \code{\link[eratosthenes]{gibbs_ad_type}}.}
 
-\item{target}{The target event (any event in \code{marginalized}) for which to estimate squared displacement.}
+\item{target}{The target event (any event for which to estimate squared displacement. If using the results of \code{\link[eratosthenes]{gibbs_ad_type}}, that type is by default the target (otherwise, for sequences/\emph{t.p.q.}/\emph{t.a.q.} one should use the output of \code{\link[eratosthenes]{gibbs_ad}}).}
 
 \item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
 
@@ -58,13 +77,15 @@ sq_disp(
 
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
-\item{rule}{The rule for computing an estimated date of production. See \code{\link[eratosthenes]{gibbs_ad}} for details.}
+\item{rule}{The rule for computing an estimated date of production, if using an artifact type as a target date. See \code{\link[eratosthenes]{gibbs_ad_type}} for details.}
+
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
-Output is a list containing a data frame \code{sq_disp} giving the diplacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
+Output is a list containing a data frame \code{sq_disp} giving the displacement with respect to all other events and a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 }
 \description{
-Computes the squared displacement for a target event within the joint conditional density, estimating how much the omission of another event will change the date of that event. See also \code{\link[eratosthenes]{msd}}.
+Computes the squared displacement for a target event within the joint conditional density, estimating how much the omission of every other event will change the date of the target. See also \code{\link[eratosthenes]{msd}}. If the target event is a find or type, the displacement of the use date is used, since use is contingent upon both production and deposition.
 }
 \details{
 Displacement is computed via the following jackknife/leave-one-out-style routine:
@@ -82,29 +103,29 @@ Trimming is not implemented in the estimation of squared displacement, and so at
 This function is fairly computationally intensive, and so a lower value of \code{max_samples} or higher value of \code{mcse_crit} may be warranted.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
 
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
 
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
 # max_samples lowered and msce_crit raised for examples
 
@@ -112,8 +133,11 @@ result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
 E_sqdisp <- sq_disp(result, target = "E", sequences = contexts, 
                     max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
+result_type1 <- gibbs_ad_type(contexts, finds = artifacts, type = "type1",
+                              tpq = tpq_info, taq = taq_info)
+
 # squared displacement for production of artifact type "type1"
-type1_sqdisp <- sq_disp(result, target = "type1", sequences = contexts, finds = artifacts,
+type1_sqdisp <- sq_disp(result_type1, sequences = contexts, finds = artifacts,
                         max_samples = 3000, mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 }

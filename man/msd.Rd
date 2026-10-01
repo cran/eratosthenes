@@ -8,7 +8,6 @@
 msd(
   marginalized,
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
@@ -16,13 +15,12 @@ msd(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  quiet = FALSE
 )
 
 \method{msd}{marginals}(
   marginalized,
   sequences,
-  finds = NULL,
   max_samples = 10^5,
   size = 10^3,
   mcse_crit = 0.5,
@@ -30,15 +28,13 @@ msd(
   taq = NULL,
   alpha_ = -5000,
   omega_ = 1950,
-  rule = "naive"
+  quiet = FALSE
 )
 }
 \arguments{
-\item{marginalized}{The results of \code{\link[eratosthenes]{gibbs_ad}}.\code{\link[eratosthenes]{gibbs_ad}}.}
+\item{marginalized}{An object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
-\item{sequences}{A \code{list} of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
-
-\item{finds}{Optional. A \code{list} of finds related to (contained in) the elements of \code{sequences}.}
+\item{sequences}{A \code{\link[eratosthenes]{sequences}} object of relative sequences of elements (e.g., contexts) used to compute \code{marginalized}.}
 
 \item{max_samples}{Maximum number of samples to run. Default is \code{10^5}.}
 
@@ -54,13 +50,13 @@ msd(
 
 \item{omega_}{A final \emph{t.a.q.} to limit any elements which may occur after the after the last provided \emph{t.a.q.} Default is \code{1950}.}
 
-\item{rule}{The rule for computing an estimated date of production. See \code{\link[eratosthenes]{gibbs_ad}} for details.}
+\item{quiet}{Whether to supress messages/progress output while function is running. Default is \code{FALSE}.}
 }
 \value{
 Output is a list containing a data frame \code{MSD_stats} giving the mean MC date, the MCSE, the MSD, the variance of the squared displacements (not the standard error), and sample size, as well as a vector \code{bounds} of the values of \code{alpha_} and \code{omega_}.
 }
 \description{
-Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}.
+Computes the mean squared displacement (MSD) of all events contained in the relative sequences and absolute constraints used in the execution of \code{\link[eratosthenes]{gibbs_ad}}. MSD is not intended for finds, in their production, use, and depositional dates, since these aspects are themselves contingent upon the variates of relative/absolute events.
 }
 \details{
 The MSD entails the following jackknife/leave-one-out style routine:
@@ -74,36 +70,36 @@ The MSD entails the following jackknife/leave-one-out style routine:
 
 If an event has a low MSD, it bears a low impact on the rest of the events within the full joint conditional density. If it is has a high MSD, other events depend heavily upon its inclusion in the full joint density.
 
-Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, and reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place.
+Trimming is not implemented in the computation of MSD, and so attention should be paid to the selection of \code{alpha_} and \code{omega_}, which should be reported. This is owing to the way in which, if an absolute constraint (\code{tpq} or \code{taq}) is omitted that happens to be an earliest or latest bounding event, there still needs to be earliest and latest thresholds in place.
 
-This function is fairly computationally intensive and thus a lower value of \code{max_samples} and a higher value of \code{mcse_crit} may be warranted
+This function is fairly computationally intensive and thus a lower value of \code{max_samples} and a higher value of \code{mcse_crit} may be warranted.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
 
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
+f1 <- finds(id = "find01", assoc = "D", type = c("type1", "form1"))
+f2 <- finds(id = "find02", assoc = "E", type = c("type1", "form2"))
+f3 <- finds(id = "find03", assoc = "G", type = c("type1", "form1"))
+f4 <- finds(id = "find04", assoc = "H", type = c("type2", "form1"))
+f5 <- finds(id = "find05", assoc = "I", type = "type2")
+f6 <- finds(id = "find06", assoc = "H", type = NULL)
 
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+artifacts <- assemblage(f1, f2, f3, f4, f5, f6)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
-result_msd <- msd(result, contexts, finds = artifacts, max_samples = 5000,
+result_msd <- msd(result, contexts, max_samples = 5000,
                   mcse_crit = 2, tpq = tpq_info, taq = taq_info)
 
 }

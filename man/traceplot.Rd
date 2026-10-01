@@ -14,8 +14,7 @@ traceplot(
   ylab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 
 \method{traceplot}{marginals}(
@@ -27,12 +26,11 @@ traceplot(
   ylab = "Year",
   palette = NULL,
   opacity = 1,
-  legend_pos = "topright",
-  ...
+  legend_pos = "topright"
 )
 }
 \arguments{
-\item{x}{A \code{list} object of class \code{marginals} or \code{use_marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}} or \code{\link[eratosthenes]{gibbs_ad_use}} respectively.}
+\item{x}{A \code{list} object of class \code{marginals}, the output of \code{\link[eratosthenes]{gibbs_ad}}.}
 
 \item{events}{A vector or element of the event names to plot. Maximum number of events is 12.}
 
@@ -49,42 +47,31 @@ traceplot(
 \item{opacity}{The opacity/transparency of the traceplot, if visualizing overlapping events. A value between 0 and 1 (default).}
 
 \item{legend_pos}{The position of the legend in the plot. Default is \code{"topright"}.}
-
-\item{...}{Additional graphical parameters passed to \code{\link[graphics]{plot}}.}
 }
 \value{
 A traceplot of the Gibbs samples of the selected events.
 }
 \description{
-Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}} for plotting a density histogram of events.
+Wrapper around \code{\link[graphics]{plot}} to make a traceplot of Gibbs samples from \code{\link[eratosthenes]{gibbs_ad}}. See \code{\link[eratosthenes]{histogram}}. Maximum number of simultaneous events to display is 12.  for plotting a density histogram of events.
 }
 \details{
-Also see \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
+See also \code{\link[eratosthenes]{tidy_marginals}} for exporting the results of these functions into tidy data frame for custom plotting in e.g., \code{ggplot2}.
 }
 \examples{
-x <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-y <- c("B", "D", "G", "H", "K")
-z <- c("F", "K", "L", "M")
-contexts <- list(x, y, z)
-
-f1 <- list(id = "find01", assoc = "D", type = c("type1", "form1"))
-f2 <- list(id = "find02", assoc = "E", type = c("type1", "form2"))
-f3 <- list(id = "find03", assoc = "G", type = c("type1", "form1"))
-f4 <- list(id = "find04", assoc = "H", type = c("type2", "form1"))
-f5 <- list(id = "find05", assoc = "I", type = "type2")
-f6 <- list(id = "find06", assoc = "H", type = NULL)
-
-artifacts <- list(f1, f2, f3, f4, f5, f6)
+x <- events("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+y <- events("B", "D", "G", "H", "K")
+z <- events("F", "K", "L", "M")
+contexts <- sequences(x, y, z)
  
 # external constraints
-coin1 <- list(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
-coin2 <- list(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
-destr <- list(id = "destr", assoc = "J", type = NULL, samples = 79)
+coin1 <- absolute(id = "coin1", assoc = "B", type = NULL, samples = runif(100,-320,-300))
+coin2 <- absolute(id = "coin2", assoc = "G", type = NULL, samples = seq(37, 41, length = 100))
+destr <- absolute(id = "destr", assoc = "J", type = NULL, samples = 79)
 
-tpq_info <- list(coin1, coin2)
-taq_info <- list(destr)
+tpq_info <- constraints(coin1, coin2)
+taq_info <- constraints(destr)
 
-result <- gibbs_ad(contexts, finds = artifacts, tpq = tpq_info, taq = taq_info)
+result <- gibbs_ad(contexts, tpq = tpq_info, taq = taq_info)
 
 traceplot(result, "B")
 traceplot(result, c("coin1", "B", "H"), opacity = 0.5)

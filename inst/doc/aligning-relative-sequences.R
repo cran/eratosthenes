@@ -8,27 +8,21 @@ knitr::opts_chunk$set(
 library(eratosthenes)
 
 ## -----------------------------------------------------------------------------
-x <- c("A", "B", "C", "D", "E")
-y <- c("B", "D", "F", "E")
-a <- list(x, y)
-seq_check(a)
+x <- events("A", "B", "C", "D", "E")
+y <- events("B", "D", "F", "E")
+a <- sequences(x, y)
 
 ## -----------------------------------------------------------------------------
-z <- c("B", "F", "C")
-b <- list(x, y, z)
-seq_check(b)
-
-## -----------------------------------------------------------------------------
-x <- c("A", "B", "C", "D", "H", "E")
-y <- c("B", "D", "F", "G", "E")
-a <- list(x, y)
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+a <- sequences(x, y)
 synth_rank(a)
 
 ## -----------------------------------------------------------------------------
 # input
-seriated <- c("S1", "T1", "T2", "S3", "S4", "T4", "T5", "T6", "S5", "T7", "S2")
+seriated <- events("S1", "T1", "T2", "S3", "S4", "T4", "T5", "T6", "S5", "T7", "S2")
 # target
-stratigraphic <- c("S1", "S2", "S3", "S4", "S5")
+stratigraphic <- events("S1", "S2", "S3", "S4", "S5")
 # input adjusted to agree with the target
 seq_adj(seriated, stratigraphic)
 
@@ -51,9 +45,17 @@ for (i in 1:length(x)) {
 }
 
 ## -----------------------------------------------------------------------------
-x <- c("A", "B", "C", "D", "H", "E")
-y <- c("B", "D", "F", "G", "E")
-a <- list(x, y)
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+
+quae_postea(x, y)
+quae_antea(x, y)
+
+## -----------------------------------------------------------------------------
+x <- events("A", "B", "C", "D", "H", "E")
+y <- events("B", "D", "F", "G", "E")
+a <- sequences(x, y)
+
 quae_postea(a)
 quae_antea(a)
 
